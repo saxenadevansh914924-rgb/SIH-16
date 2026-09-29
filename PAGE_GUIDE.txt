@@ -1,0 +1,447 @@
+BHOOMI INTELLIGENCE — PAGE-BY-PAGE GUIDE
+========================================
+
+Is document mein frontend ke har route/page ka purpose, visible information,
+interactions, data source aur prototype limitations detail mein diye gaye hain.
+Yeh application demonstration prototype hai. Page par dikhaye gaye records,
+metrics, maps ke regional indicators aur activity counts illustrative/demo data
+hain; inhe official government statistics ya verified research evidence na
+samjhein.
+
+
+1. APP KA OVERALL STRUCTURE
+--------------------------
+
+Frontend React + Vite par chalta hai. Routing React Router se hoti hai. Har
+internal page par common application shell rehta hai:
+
+- Left sidebar: sab main pages ke navigation links.
+- Top bar: current page breadcrumb, global search/command palette, theme
+  control, unread notification indicator aur profile shortcut.
+- Main content: route ke hisaab se page.
+- Footer: prototype/demo data disclaimer.
+
+Sidebar collapse/expand ho sakti hai. Chhoti screen par menu button drawer kholta
+hai; kisi page ko select karne ke baad drawer band hota hai. Theme dark ya light
+ki ja sakti hai; preference browser ke localStorage mein `bhoomi-theme` key se
+save rehti hai.
+
+Keyboard shortcut CMD+K (Mac) ya CTRL+K (Windows/Linux) command palette kholta
+hai. ESC palette/drawer ko band karta hai. Palette research records, datasets,
+projects aur GIS page ke matching results dikhati hai. Research result detail
+route par, dataset Datasets page par aur project Workspace par le jata hai.
+
+Bookmark, notification aur active form state abhi local React state mein hain;
+database ya account sync nahi hai. Page reload par kuch state reset ho sakti hai.
+
+
+2. PAGE DIRECTORY
+-----------------
+
+PAGE: Public landing page
+Route: /
+Component: `Landing` in `src/App.jsx`
+
+Maqsad:
+Product ko introduce karna: research, policy, geospatial evidence aur AI ko ek
+land-governance intelligence platform mein jodna.
+
+Page par kya hai:
+- Hero headline: “Evidence for a more informed relationship with land.”
+- Subtitle land-governance evidence ecosystem ka purpose samjhata hai.
+- Decorative India/evidence-network illustration aur illustrative counters.
+- Metrics row: research, datasets, projects aur GIS layer counts.
+- Six feature cards: Research Intelligence, Geospatial Intelligence, Policy
+  Analytics, AI Research Assistant, Policy Simulation aur Innovation Hub.
+
+Interactions:
+- “Explore platform” National Overview `/app` kholta hai.
+- “AI Research Assistant” `/assistant` kholta hai.
+- Feature cards apne sambandhit route par le jate hain.
+
+Data/limits:
+Hero ke metrics sample demo counts hain; live national dashboard feed nahi.
+Illustration static CSS/HTML artwork hai, live map nahi.
+
+
+PAGE: National Overview dashboard
+Route: /app
+Component: `Dashboard`
+
+Maqsad:
+Judge/demo ko ek nazar mein platform ke scale aur current research-policy
+activity ka overview dikhana.
+
+Sections:
+- Chhe KPI cards: total research 1,248; datasets 386; active projects 74;
+  policy studies 219; GIS layers 42; innovation challenges 18.
+- Research Activity Over Time: monthly research-paper aur policy-study trend
+  area/line chart.
+- State-wise Activity: sample states ke record counts aur relative bars.
+- Dataset Distribution: land use, records, acquisition, climate aur other
+  themes ka donut chart.
+- Policy Pulse: sample themes aur illustrative momentum/evidence-gap signals.
+- Recent Research: latest local research records; row par click detail kholta hai.
+- Active Projects: progress bars ke saath selected demo projects.
+- Quick Actions: repository, GIS, AI Assistant aur Simulation par shortcuts.
+
+Interactions:
+- Research rows `/research/:id` kholti hain.
+- View all/Browse/Workspace links sambandhit page kholte hain.
+- Quick Actions user ko main demo flow ke agle task par le jate hain.
+- Export overview button abhi presentation control hai; actual export file
+  generate nahi karta.
+
+Data:
+Charts `src/data/analytics.js` se, recent work/projects respective local demo
+data modules se aate hain. Dashboard ke counts fictional/illustrative hain.
+
+
+PAGE: Research Repository
+Route: /research
+Component: `ResearchPage`
+
+Maqsad:
+Research papers, policy reports, case studies aur related evidence ko browse
+karna, filter karna aur detail page tak pahunchna.
+
+Controls:
+- Search box title, abstract, topic, author aur organization ke text ko locally
+  match karta hai.
+- State dropdown selected state ke records filter karta hai.
+- Document-type dropdown Research Paper, Policy Report, Case Study, Policy Brief
+  aadi filter karta hai.
+- Sort dropdown newest-first ya title A–Z ordering deta hai.
+- Reset button state/type filters reset karta hai.
+- Keyword / AI Semantic toggle semantic discovery mode ko visibly select karta
+  hai. Semantic mode abhi local demo matching label hai; vector embeddings ya
+  semantic search service nahi chalti.
+- Trending topic click us phrase ko search box mein daalta hai.
+
+Har research card par:
+- Document type, title, abstract, author, organization, topic, state aur year.
+- Bookmark icon record ko app-level local bookmark list mein add/remove karta
+  hai.
+- “View research” title aur detail view route `/research/:id` par le jate hain.
+- Right side trending topics, semantic-search explainer aur saved-record count.
+
+Pagination controls visual demonstration hain; currently full remote collection
+load nahi hoti aur page navigation ke alag 1,248 records maujood nahi hain.
+Current local dataset `src/data/research.js` mein limited sample records hain.
+
+
+PAGE: Research Details
+Route: /research/:id
+Component: `ResearchDetail`
+
+Maqsad:
+Selected research entry ke metadata aur summary ko ek focused page mein dikhana.
+
+Page par:
+- Type, year, title, authors, organization aur prototype-data indicator.
+- Abstract, teen illustrative key findings, keywords aur document metadata.
+- Related Research panel: matching topic/state ke dusre local records.
+- Evidence-handling note aur citation preview.
+
+Interactions:
+- Bookmark action record ko save/unsave karta hai.
+- Related research item dusre `/research/:id` route ko kholta hai.
+- “Ask AI about this research” `/assistant` kholta hai.
+- “View dataset” `/datasets` kholta hai.
+- Copy citation control UI confirmation dikhata hai; clipboard integration abhi
+  nahi hai.
+
+Research detail source `src/data/research.js` hai. Missing ID ke case mein
+currently first sample record render hota hai.
+
+
+PAGE: Datasets
+Route: /datasets
+Component: `DatasetsPage`
+
+Maqsad:
+Land-governance related structured data aur geospatial evidence ka catalogue
+demonstrate karna.
+
+Page par:
+- Catalogue banner, sample coverage aur theme summary.
+- Name-based local search.
+- Category filter (Land Use, Policy, Climate, Land Records, Community).
+- Dataset cards par category, title, description, state, format, updated date
+  aur fictional record-count.
+- Har card ka bookmark action local page state mein save toggle karta hai.
+- “Preview dataset” abhi local visual confirmation deta hai; file download ya
+  actual table preview generate nahi hota.
+- “Refine” aur catalogue action visual controls hain; full advanced filter/export
+  workflow connected nahi hai.
+
+Dataset records `src/data/datasets.js` se aate hain. Sab metadata illustrative
+hai.
+
+
+PAGE: AI Research Assistant
+Route: /assistant
+Component: `Assistant`; server endpoint: `server.js` POST `/api/chat`
+
+Maqsad:
+Local research/dataset catalogue se context lekar natural-language Q&A ka demo
+dena.
+
+Interface:
+- Left conversation history panel aur new-conversation action.
+- Center chat: suggested questions, message composer, send button aur response.
+- Right evidence panel: sample research papers/dataset cards aur match scores.
+- Enter message bhejta hai; Shift+Enter newline ke liye hai.
+- New conversation message list clear karta hai.
+
+AI flow:
+- Browser `POST /api/chat` ko conversation messages bhejta hai.
+- Local Express server OpenAI Node SDK/Responses API ko call karta hai.
+- Model setting `OPENAI_MODEL` se; default `gpt-4.1-mini`.
+- Server `src/data/research.js` aur `src/data/datasets.js` se catalogue context
+  banata hai. Instructions model ko fictional data ko official statistics na
+  batane aur catalogue ke titles cite karne ko kehte hain.
+- API key sirf server environment (`.env.local`) mein honi chahiye. `VITE_`
+  prefix use na karein; frontend bundle mein secret kabhi na rakhein.
+- API key absent, request fail ya billing/model access issue ho toh chat mein
+  readable error text dikhaya jata hai.
+
+Setup:
+`frontend/.env.example` ko `.env.local` mein copy karein, valid/rotated key add
+karein, aur `npm run dev` se Vite + API server dono start karein.
+
+Limits:
+- Conversation history browser state mein hai; server-side memory/database nahi.
+- Evidence panel static demo source cards hai; model output se automated
+  citations extraction nahi hoti.
+- Responses OpenAI se real-time aate hain, lekin curated corpus chhota local
+  prototype data hai; yeh production RAG/vector search nahi.
+
+
+PAGE: GIS Intelligence
+Route: /gis
+Component: `GISPage`; map auto-pan helper: `MapFocus`
+
+Maqsad:
+Map ke geographic context par fictional region evidence ko explore karna.
+
+Map stack:
+- Leaflet + React-Leaflet.
+- OpenStreetMap raster tiles: `https://tile.openstreetmap.org/{z}/{x}/{y}.png`.
+- OSM attribution map par visible hota hai.
+- Tiles internet connection par depend karte hain; tile network fail ho toh map
+  error message aur Retry button dikhata hai. Polygon/marker overlays independent
+  demo layers hain.
+
+Interactions:
+- Map zoom buttons, scroll zoom aur pan support karta hai.
+- State polygons aur markers clickable hain; click region select karta hai.
+- Selected region change par map uske approximate coordinates par fly-to/zoom
+  karta hai.
+- Popup region name, project count aur policy indicator dikhata hai.
+- State search (example: Rajasthan) + Enter region select/zoom karta hai.
+- Layer controls states, districts, research activity, policy indicators aur
+  case studies ke display ko control karne ke liye hain.
+- Right panel selected state ke projects, datasets, policy studies aur case
+  studies count; indicator; research/dataset/analytics shortcuts dikhata hai.
+- Mobile par map top par, layer controls aur region summary neeche stack hote
+  hain.
+
+Data:
+Approximate sample state polygons/coordinates aur counters
+`src/data/gisData.js` mein hain. Polygons official GIS boundaries nahi hain.
+Tile layer internet se aati hai; prototype geometry local JavaScript hai.
+
+
+PAGE: Policy Analytics
+Route: /analytics
+Component: `AnalyticsPage`
+
+Maqsad:
+Research coverage, policy signals, land-use trends aur states ko chart ke
+through compare karna.
+
+Visible elements:
+- Page tabs: Overview, Research intelligence, Policy intelligence, Land-use
+  trends. Current prototype mein tab selection visual state hai; charts ko
+  alag tab dataset se switch nahi kiya jata.
+- KPI cards: publications, dataset growth, state activity aur indicators.
+- Research intelligence line chart: monthly paper/policy activity.
+- Evidence themes donut chart: dataset category distribution.
+- Policy indicator area chart: illustrative quarterly index.
+- State comparison bar chart: selected state checkboxes ke mutabik bars.
+- Export analysis button abhi actual download export nahi banata.
+- Disclaimer data ko fictional prototype evidence batata hai.
+
+Interactions:
+- State checkboxes chart ke compared states add/remove karte hain.
+- Chart tooltip hovered values dikhata hai.
+- Recharts visuals local `src/data/analytics.js` se feed hote hain.
+
+
+PAGE: Policy Simulation
+Route: /simulation
+Component: `Simulation`
+
+Maqsad:
+Policy assumptions ko adjust karke illustrative baseline-vs-scenario comparison
+ka local demonstration.
+
+Inputs:
+- Scenario name.
+- Land-use allocation (0–100%).
+- Urban expansion (0–50%).
+- Infrastructure development (0–60%).
+- Climate risk factor (0–40%).
+
+Run karne par:
+- Local JavaScript formula scenario values calculate karta hai.
+- Land-use composition chart baseline aur scenario bars compare karta hai.
+- Table agricultural, urban, forest/commons aur other land share ke baseline,
+  scenario aur percentage-point change dikhati hai.
+- Input badalne par current scenario draft state mein wapas chala jata hai.
+- “Save scenario to workspace” result ko localStorage key
+  `bhoomi-last-simulation` mein rakhta hai; workspace page par saved strip aati
+  hai.
+
+Limitations:
+Yeh scientific forecasting model nahi, causal impact analysis nahi, aur official
+government forecast nahi. Formula demo values ko illustrate karta hai. Koi
+backend, geographic simulation ya policy-model calibration nahi hai.
+
+
+PAGE: Research Workspace
+Route: /workspace
+Component: `Workspace`
+
+Maqsad:
+Team-based research projects, connected evidence aur recent activity ko ek
+workspace view mein dikhana.
+
+Left side:
+- Active projects list; project choose karne par detail area update hota hai.
+- Project name, lead, member count, progress, status aur deadline.
+- Summary cards: projects, bookmarked research, datasets, collaborators.
+
+Project detail tabs:
+- Overview: project summary, completion bar, linked research/dataset cards,
+  sample recent activity.
+- Research: local research rows aur repository mein add/browse shortcut.
+- Datasets: connected sample datasets aur catalogue shortcut.
+- Members: illustrative collaborator list.
+- Timeline: sample milestones/statuses.
+
+Simulation save:
+Agar simulation localStorage mein saved hai toh page saved scenario strip dikhata
+hai; reopen action `/simulation` kholta hai.
+
+Limits:
+Project lists, collaboration activity, members aur timelines static demo data
+hain. “New project”/“Create a project” abhi persistent project create nahi
+karta. Team communication ya shared backend nahi hai.
+
+
+PAGE: Innovation Hub
+Route: /innovation
+Component: `Innovation`
+
+Maqsad:
+Hackathons, challenges, grants/pilot opportunities aur idea submission journey
+ka end-to-end visual demo.
+
+Page par:
+- Featured open-call banner.
+- Opportunity cards: AI for Transparent Land Governance, Geospatial Innovation
+  Challenge, Evidence-Based Policy Lab.
+- Organization, deadline/status, participant count aur opportunity type.
+- Opportunity detail modal mein problem, objectives, eligibility aur timeline.
+- Idea submission form: title, description, team/organization aur attachment.
+
+Submit behavior:
+Submit button par success state aur “Prototype Submission” message aata hai.
+Form submission actual server par upload/save nahi hoti. Attachment local demo
+form control hai; server par file transmit nahi hoti. Is prototype mein success
+confirmation demonstration hai.
+
+Filters, about-hub aur proposal controls ka kuch hissa visual/demo interaction
+hai; challenge records `src/data/innovations.js` mein fixed hain.
+
+
+PAGE: Notifications
+Route: /notifications
+Component: `NotificationsPage`
+
+Maqsad:
+User ko research updates, project progress, challenge announcement aur saved
+simulation notifications dikhana.
+
+Interactions:
+- All / Unread filters.
+- Individual “Mark as read” click unread status hata deta hai.
+- “Mark all as read” sab current in-memory items ko read karta hai.
+- Sidebar badge unread count ke saath update hota hai.
+- Read button read state ke baad status dikhata hai.
+
+Limits:
+Notification list component state mein hai. Reload par seed notifications se
+reset hoti hai; server push/email ya persistent notification store nahi.
+Notification preferences button abhi explanatory demo alert dikhata hai.
+
+
+PAGE: Researcher Profile
+Route: /profile
+Component: `Profile`
+
+Maqsad:
+Demo researcher identity, areas of interest aur appearance preference dikhana.
+
+Displayed profile:
+Name, role, organization, state aur research interests.
+
+Interactions:
+- Edit profile form fields ko local React state mein badalta hai.
+- Save confirmation on-screen dikhata hai; profile backend/database mein save
+  nahi hota aur reload ke baad seed profile aati hai.
+- Dark mode/Light mode buttons global theme state aur localStorage preference
+  update karte hain.
+- My Activity demo totals aur Workspace shortcut dikhata hai.
+
+Security/identity:
+Yeh sample profile hai; login, account management ya identity provider nahi.
+
+
+3. DATA FILES AUR SERVICE BOUNDARY
+---------------------------------
+
+`src/data/research.js`       Research papers, reports aur sample metadata.
+`src/data/datasets.js`       Dataset catalogue sample entries.
+`src/data/projects.js`       Workspace project cards.
+`src/data/gisData.js`        Approximate map coordinates/polygons/counters.
+`src/data/analytics.js`     Chart time series, state counts, distributions.
+`src/data/innovations.js`   Challenge/grant/pilot opportunities.
+`src/data/notifications.js` Seed notification messages.
+`src/data/services.js`      UI ke liye local service adapters.
+
+`services.js` future API replacement boundary demonstrate karta hai. Baaki page
+interactions filhaal local state aur in-memory demo arrays par hain.
+
+
+4. LOCAL RUN
+-----------
+
+Terminal se frontend folder mein:
+
+  cd frontend
+  npm install
+  cp .env.example .env.local
+
+`.env.local` mein OpenAI key set karke dono local processes ek saath chalane ke
+liye:
+
+  npm run dev
+
+Vite app aam taur par http://localhost:5173 par khulta hai. `/api` Vite proxy
+local Express API (port 3001) par request bhejta hai. OpenAI key ko `.env.local`
+mein rakhein, source code mein nahi. GIS base tiles ko dikhne ke liye internet
+connection chahiye.
+
