@@ -605,7 +605,7 @@ function Landing() {
           ].map(([I, t, d, l, c]) => (
             <button
               className="feature-card"
-              onClick={() => location.assign(l)}
+              onClick={() => navigate(l)}
               key={t}
             >
               <span className={"feature-icon " + c}>
@@ -1659,6 +1659,7 @@ function DatasetsPage() {
 }
 
 function Assistant() {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]),
     [input, setInput] = useState(""),
     [active, setActive] = useState(""),
@@ -1941,7 +1942,7 @@ function Assistant() {
               <button
                 className="text-link"
                 onClick={() =>
-                  r.id?.startsWith("r") && location.assign("/research/" + r.id)
+                  r.id?.startsWith("r") && navigate("/research/" + r.id)
                 }
               >
                 Open source <ArrowRight size={12} />
@@ -1950,7 +1951,7 @@ function Assistant() {
           ))}
           <button
             className="button secondary full-width"
-            onClick={() => location.assign("/research")}
+            onClick={() => navigate("/research")}
           >
             Browse research collection <ArrowRight size={14} />
           </button>
@@ -1982,6 +1983,7 @@ function answerFor(q) {
 }
 
 function GISPage() {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState(regions[0]),
     [placeQuery, setPlaceQuery] = useState(""),
     [tileState, setTileState] = useState("loading"),
@@ -2237,13 +2239,13 @@ function GISPage() {
             <ArrowUpRight size={14} />
           </div>
           <div className="region-links">
-            <button onClick={() => location.assign("/research")}>
+            <button onClick={() => navigate("/research")}>
               View regional research <ArrowRight size={14} />
             </button>
-            <button onClick={() => location.assign("/datasets")}>
+            <button onClick={() => navigate("/datasets")}>
               Explore datasets <ArrowRight size={14} />
             </button>
-            <button onClick={() => location.assign("/analytics")}>
+            <button onClick={() => navigate("/analytics")}>
               Compare region <ArrowRight size={14} />
             </button>
           </div>
@@ -3596,6 +3598,7 @@ function NotificationsPage({ notifications, setNotifications }) {
 }
 
 function Profile({ theme, setTheme }) {
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false),
     [saved, setSaved] = useState(false),
     [profile, setProfile] = useState({
@@ -3778,7 +3781,7 @@ function Profile({ theme, setTheme }) {
             </div>
             <button
               className="text-link"
-              onClick={() => location.assign("/workspace")}
+              onClick={() => navigate("/workspace")}
             >
               Go to workspace <ArrowRight size={13} />
             </button>

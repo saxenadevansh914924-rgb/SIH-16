@@ -12,6 +12,18 @@ npm run dev
 
 Vite serves the app at `http://localhost:5173`.
 
+## Publish on GitHub Pages
+
+The repository includes `.github/workflows/deploy-pages.yml`. Push the project
+to the `main` branch, then in GitHub open **Settings → Pages** and select
+**GitHub Actions** as the deployment source. The workflow builds and publishes
+the static frontend at `https://<owner>.github.io/SIH-16/`.
+
+The frontend uses hash-based routes so direct visits and refreshes work on
+GitHub Pages. GitHub Pages hosts static files only; the OpenAI assistant's
+Express endpoint (`server.js`) needs a separate server deployment and an
+`OPENAI_API_KEY` environment variable. Do not commit API keys.
+
 ## Included flows
 
 - National overview dashboard and analytics visualisations
