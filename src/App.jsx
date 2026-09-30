@@ -49,6 +49,10 @@ import {
   Clock3,
   MapPin,
   CircleHelp,
+  Settings as SettingsIcon,
+  BellRing,
+  Monitor,
+  RotateCcw,
 } from "lucide-react";
 import {
   LineChart,
@@ -104,6 +108,7 @@ const nav = [
   ["Research Workspace", Users, "/workspace"],
   ["Innovation Hub", Sparkles, "/innovation"],
   ["Notifications", Bell, "/notifications"],
+  ["Settings", SettingsIcon, "/settings"],
 ];
 const titleMap = {
   "/app": "National Overview",
@@ -117,8 +122,13 @@ const titleMap = {
   "/innovation": "Innovation Hub",
   "/notifications": "Notifications",
   "/profile": "Researcher Profile",
+  "/settings": "Settings",
 };
 const colors = ["#40d6c2", "#8b7cf6", "#f3b957", "#59a9f8", "#ed7d9c"];
+const defaultSettings = {
+  notifications: { research: true, projects: true, challenges: true, policy: true },
+  reduceMotion: false,
+};
 function App() {
   const [theme, setTheme] = useState(
       localStorage.getItem("bhoomi-theme") || "dark",
@@ -128,14 +138,26 @@ function App() {
     [palette, setPalette] = useState(false),
     [globalSearch, setGlobalSearch] = useState(""),
     [notifications, setNotifications] = useState(seedNotifications),
+    [settings, setSettings] = useState(() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem("bhoomi-settings") || "{}");
+        return { ...defaultSettings, ...saved, notifications: { ...defaultSettings.notifications, ...saved.notifications } };
+      } catch {
+        return defaultSettings;
+      }
+    }),
     [bookmarks, setBookmarks] = useState([]);
   const location = useLocation(),
     navigate = useNavigate(),
-    unread = notifications.filter((n) => n.unread).length;
+    unread = notifications.filter((n) => n.unread && settings.notifications[n.category] !== false).length;
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("bhoomi-theme", theme);
   }, [theme]);
+  useEffect(() => {
+    localStorage.setItem("bhoomi-settings", JSON.stringify(settings));
+    document.documentElement.dataset.reducedMotion = String(settings.reduceMotion);
+  }, [settings]);
   useEffect(() => {
     const fn = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -346,9 +368,12 @@ function App() {
                 <NotificationsPage
                   notifications={notifications}
                   setNotifications={setNotifications}
+                  settings={settings}
+                  navigate={navigate}
                 />
               }
             />
+            <Route path="/settings" element={<SettingsPage theme={theme} setTheme={setTheme} settings={settings} setSettings={setSettings} />} />
             <Route
               path="/profile"
               element={<Profile theme={theme} setTheme={setTheme} />}
@@ -360,7 +385,7 @@ function App() {
           </Routes>
         </div>
         <footer className="footer">
-          <span>© 2025 Bhoomi Intelligence</span>
+          <span>© 2026 Bhoomi Intelligence</span>
           <span>
             <span className="prototype-label">
               <i /> PROTOTYPE DATA
@@ -3478,10 +3503,11 @@ function UploadIcon() {
   return <Download size={14} />;
 }
 
-function NotificationsPage({ notifications, setNotifications }) {
+function NotificationsPage({ notifications, setNotifications, settings, navigate }) {
   const [filter, setFilter] = useState("All");
-  const unread = notifications.filter((n) => n.unread).length;
-  const visible = notifications.filter(
+  const enabledNotifications = notifications.filter((n) => settings.notifications[n.category] !== false);
+  const unread = enabledNotifications.filter((n) => n.unread).length;
+  const visible = enabledNotifications.filter(
     (n) => filter === "All" || (filter === "Unread" && n.unread),
   );
   return (
@@ -3505,7 +3531,7 @@ function NotificationsPage({ notifications, setNotifications }) {
         <div className="head-meta">
           <span className="notification-count">{unread} unread</span>
           <span>·</span>
-          <span>{notifications.length} total updates</span>
+          <span>{enabledNotifications.length} visible updates</span>
         </div>
       </PageHead>
       <div className="notification-toolbar">
@@ -3586,12 +3612,108 @@ function NotificationsPage({ notifications, setNotifications }) {
         </div>
         <button
           className="text-link"
-          onClick={() =>
-            alert("Notification preferences are a prototype setting.")
-          }
+          onClick={() => navigate("/settings")}
         >
           Settings <ArrowRight size={13} />
         </button>
+      </div>
+    </>
+  );
+}
+
+function SettingsPage({ theme, setTheme, settings, setSettings }) {
+  const [resetNotice, setResetNotice] = useState(false);
+  const toggleNotification = (key) => {
+    setSettings((current) => ({
+      ...current,
+      notifications: {
+        ...current.notifications,
+        [key]: !current.notifications[key],
+      },
+    }));
+    setResetNotice(false);
+  };
+  const resetSettings = () => {
+    setTheme("dark");
+    setSettings(defaultSettings);
+    setResetNotice(true);
+  };
+  const preferenceRows = [
+    ["research", "Research updates", "New papers and repository additions.", FileText],
+    ["projects", "Project activity", "Progress changes and workspace updates.", Users],
+    ["challenges", "Innovation opportunities", "New challenges, grants and pilot calls.", Sparkles],
+    ["policy", "Policy and simulation", "Policy signals and saved scenario updates.", TrendingUp],
+  ];
+  return (
+    <>
+      <PageHead
+        eyebrow="PREFERENCES & CONTROLS"
+        title="Settings"
+        desc="Choose how Bhoomi Intelligence looks and which updates appear in your workspace."
+        action={<span className="settings-autosave"><Check size={13}/> Saved on this device</span>}
+      >
+        <div className="head-meta"><DemoFlag/><span>Preferences are stored locally in this browser.</span></div>
+      </PageHead>
+      {resetNotice && <div className="settings-reset-notice"><Check size={14}/> Settings restored to their defaults.</div>}
+      <div className="settings-page-grid">
+        <section className="panel settings-page-card appearance-card">
+          <div className="settings-section-heading">
+            <span className="settings-section-icon violet"><Monitor size={17}/></span>
+            <div><h2>Appearance</h2><p>Set the theme and motion preference for this device.</p></div>
+          </div>
+          <div className="settings-divider"/>
+          <div className="settings-control-block">
+            <div><b>Workspace theme</b><small>Choose a theme for the platform interface.</small></div>
+            <div className="settings-theme-options">
+              {[["dark", "Dark mode", Moon], ["light", "Light mode", Sun]].map(([value, label, Icon]) => (
+                <button key={value} className={theme === value ? "selected" : ""} onClick={() => setTheme(value)}>
+                  <Icon size={16}/><span>{label}</span>{theme === value && <Check size={14}/>}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="settings-divider"/>
+          <div className="settings-preference-row">
+            <span className="settings-row-icon"><Zap size={16}/></span>
+            <div><b>Reduce motion</b><small>Turn off interface transitions and animations.</small></div>
+            <label className="settings-switch" aria-label="Reduce motion">
+              <input type="checkbox" checked={settings.reduceMotion} onChange={() => { setSettings(s => ({ ...s, reduceMotion: !s.reduceMotion })); setResetNotice(false); }}/>
+              <i/>
+            </label>
+          </div>
+        </section>
+
+        <section className="panel settings-page-card notification-preferences-card">
+          <div className="settings-section-heading">
+            <span className="settings-section-icon teal"><BellRing size={17}/></span>
+            <div><h2>Notification preferences</h2><p>Choose which updates appear in your notification feed.</p></div>
+          </div>
+          <div className="settings-divider"/>
+          <div className="settings-preference-list">
+            {preferenceRows.map(([key, label, description, Icon]) => (
+              <div className="settings-preference-row" key={key}>
+                <span className="settings-row-icon"><Icon size={16}/></span>
+                <div><b>{label}</b><small>{description}</small></div>
+                <label className="settings-switch" aria-label={label}>
+                  <input type="checkbox" checked={settings.notifications[key]} onChange={() => toggleNotification(key)}/>
+                  <i/>
+                </label>
+              </div>
+            ))}
+          </div>
+          <div className="settings-footnote"><Bell size={13}/> Disabled categories are hidden from the feed and unread count.</div>
+        </section>
+
+        <section className="panel settings-page-card storage-card">
+          <div className="settings-section-heading">
+            <span className="settings-section-icon amber"><Database size={17}/></span>
+            <div><h2>Local preferences</h2><p>Manage settings saved by this prototype.</p></div>
+          </div>
+          <div className="settings-storage-row"><span>Saved preferences</span><b>Browser localStorage</b></div>
+          <button className="button secondary small" onClick={resetSettings}><RotateCcw size={14}/> Reset settings</button>
+        </section>
+
+        <div className="settings-demo-note"><CircleHelp size={15}/><span><b>Prototype settings</b><small>These preferences only affect this browser. They are not synced to an account or shared across devices.</small></span></div>
       </div>
     </>
   );
@@ -3754,6 +3876,9 @@ function Profile({ theme, setTheme }) {
                 </button>
               ))}
             </div>
+            <button className="text-link profile-settings-link" onClick={() => navigate("/settings")}>
+              All settings <ArrowRight size={13} />
+            </button>
           </div>
           <div className="panel settings-panel">
             <div className="panel-head">

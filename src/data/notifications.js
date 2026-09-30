@@ -7,6 +7,7 @@ export const notifications = [
     time: "12 min ago",
     unread: true,
     icon: "file",
+    category: "research",
   },
   {
     id: "n2",
@@ -15,6 +16,7 @@ export const notifications = [
     time: "2 hours ago",
     unread: true,
     icon: "activity",
+    category: "projects",
   },
   {
     id: "n3",
@@ -23,6 +25,7 @@ export const notifications = [
     time: "Yesterday",
     unread: true,
     icon: "sparkles",
+    category: "challenges",
   },
   {
     id: "n4",
@@ -31,5 +34,6 @@ export const notifications = [
     time: "Yesterday",
     unread: false,
     icon: "chart",
+    category: "policy",
   },
 ];

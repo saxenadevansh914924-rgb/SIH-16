@@ -379,13 +379,39 @@ Interactions:
 - All / Unread filters.
 - Individual “Mark as read” click unread status hata deta hai.
 - “Mark all as read” sab current in-memory items ko read karta hai.
-- Sidebar badge unread count ke saath update hota hai.
+- Sidebar badge enabled categories ke unread count ke saath update hota hai.
 - Read button read state ke baad status dikhata hai.
+- Notification preferences link `/settings` kholta hai.
 
 Limits:
-Notification list component state mein hai. Reload par seed notifications se
-reset hoti hai; server push/email ya persistent notification store nahi.
-Notification preferences button abhi explanatory demo alert dikhata hai.
+Notification read/unread state component memory mein hai. Reload par seed
+notifications se reset hoti hai; server push/email ya persistent notification
+store nahi.
+
+
+PAGE: Settings
+Route: /settings
+Component: `SettingsPage`
+
+Maqsad:
+Workspace theme, motion accessibility aur notification feed preferences ko
+control karna.
+
+Functional controls:
+- Dark mode / Light mode buttons global theme update karte hain. Theme aur
+  settings reload ke baad browser `localStorage` se restore hote hain.
+- Reduce motion interface animations aur transitions ko minimize karta hai.
+- Research, project, innovation aur policy notification switches apne category
+  ke notifications ko feed aur unread badge se hide/show karte hain.
+- Reset settings dark theme, default notification preferences aur normal motion
+  par lautata hai.
+- Sidebar Settings item, Notifications preferences link aur Profile ka “All
+  settings” shortcut page tak le jaate hain.
+
+Limits:
+Preferences sirf current browser/device ke localStorage mein hain; account sync
+ya server persistence nahi hai. Notification read/unread status abhi memory
+mein hota hai aur reload par demo seed state par lautata hai.
 
 
 PAGE: Researcher Profile
@@ -444,4 +470,3 @@ Vite app aam taur par http://localhost:5173 par khulta hai. `/api` Vite proxy
 local Express API (port 3001) par request bhejta hai. OpenAI key ko `.env.local`
 mein rakhein, source code mein nahi. GIS base tiles ko dikhne ke liye internet
 connection chahiye.
-
