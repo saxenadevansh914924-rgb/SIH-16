@@ -38,30 +38,9 @@ database ya account sync nahi hai. Page reload par kuch state reset ho sakti hai
 2. PAGE DIRECTORY
 -----------------
 
-PAGE: Public landing page
+PAGE: App entry
 Route: /
-Component: `Landing` in `src/App.jsx`
-
-Maqsad:
-Product ko introduce karna: research, policy, geospatial evidence aur AI ko ek
-land-governance intelligence platform mein jodna.
-
-Page par kya hai:
-- Hero headline: “Evidence for a more informed relationship with land.”
-- Subtitle land-governance evidence ecosystem ka purpose samjhata hai.
-- Decorative India/evidence-network illustration aur illustrative counters.
-- Metrics row: research, datasets, projects aur GIS layer counts.
-- Six feature cards: Research Intelligence, Geospatial Intelligence, Policy
-  Analytics, AI Research Assistant, Policy Simulation aur Innovation Hub.
-
-Interactions:
-- “Explore platform” National Overview `/app` kholta hai.
-- “AI Research Assistant” `/assistant` kholta hai.
-- Feature cards apne sambandhit route par le jate hain.
-
-Data/limits:
-Hero ke metrics sample demo counts hain; live national dashboard feed nahi.
-Illustration static CSS/HTML artwork hai, live map nahi.
+Behavior: Root route `/app` National Overview dashboard par redirect karta hai.
 
 
 PAGE: National Overview dashboard
@@ -89,8 +68,8 @@ Interactions:
 - Research rows `/research/:id` kholti hain.
 - View all/Browse/Workspace links sambandhit page kholte hain.
 - Quick Actions user ko main demo flow ke agle task par le jate hain.
-- Export overview button abhi presentation control hai; actual export file
-  generate nahi karta.
+- Export overview CSV download karta hai jisme KPI summary, monthly activity,
+  state-wise activity, dataset distribution aur policy pulse shamil hote hain.
 
 Data:
 Charts `src/data/analytics.js` se, recent work/projects respective local demo
@@ -117,6 +96,11 @@ Controls:
   hai. Semantic mode abhi local demo matching label hai; vector embeddings ya
   semantic search service nahi chalti.
 - Trending topic click us phrase ko search box mein daalta hai.
+- “Add research” form title, author, organization, year, type, topic, state aur
+  abstract leta hai. Required fields validate hote hain; submit par record
+  repository mein turant dikhai deta hai aur uska detail route bhi khulta hai.
+- Naye records browser ke `localStorage` mein `bhoomi-research` key se save
+  hote hain, isliye reload ke baad bhi isi browser mein available rehte hain.
 
 Har research card par:
 - Document type, title, abstract, author, organization, topic, state aur year.
@@ -127,7 +111,9 @@ Har research card par:
 
 Pagination controls visual demonstration hain; currently full remote collection
 load nahi hoti aur page navigation ke alag 1,248 records maujood nahi hain.
-Current local dataset `src/data/research.js` mein limited sample records hain.
+Seed dataset `src/data/research.js` mein limited sample records hain. Added
+records current browser mein locally persist hote hain; server/database sync
+nahi hai.
 
 
 PAGE: Research Details
@@ -170,10 +156,13 @@ Page par:
 - Dataset cards par category, title, description, state, format, updated date
   aur fictional record-count.
 - Har card ka bookmark action local page state mein save toggle karta hai.
-- “Preview dataset” abhi local visual confirmation deta hai; file download ya
-  actual table preview generate nahi hota.
-- “Refine” aur catalogue action visual controls hain; full advanced filter/export
-  workflow connected nahi hai.
+- “Data catalogue” button current search/category filters ke hisaab se CSV
+  download karta hai. File mein name, category, state, format, update date aur
+  coverage metadata hota hai.
+- “Preview dataset” abhi local visual confirmation deta hai; sample source file
+  ya actual table preview generate nahi hota.
+- “Refine” abhi visual control hai; category dropdown hi active category filter
+  hai.
 
 Dataset records `src/data/datasets.js` se aate hain. Sab metadata illustrative
 hai.
@@ -263,18 +252,24 @@ through compare karna.
 
 Visible elements:
 - Page tabs: Overview, Research intelligence, Policy intelligence, Land-use
-  trends. Current prototype mein tab selection visual state hai; charts ko
-  alag tab dataset se switch nahi kiya jata.
+  trends. Har tab relevant KPI cards aur chart panels switch karta hai; Overview
+  all available analytics panels dikhata hai.
 - KPI cards: publications, dataset growth, state activity aur indicators.
 - Research intelligence line chart: monthly paper/policy activity.
 - Evidence themes donut chart: dataset category distribution.
 - Policy indicator area chart: illustrative quarterly index.
 - State comparison bar chart: selected state checkboxes ke mutabik bars.
-- Export analysis button abhi actual download export nahi banata.
+- Export analysis CSV download karta hai: KPI summary, monthly research/policy
+  activity, dataset themes, quarterly indicator trends aur currently selected
+  states include hote hain. Filename `bhoomi-policy-analysis-YYYY-MM-DD.csv`
+  format mein hota hai.
 - Disclaimer data ko fictional prototype evidence batata hai.
 
 Interactions:
 - State checkboxes chart ke compared states add/remove karte hain.
+- Tab select karne par us view ka description, KPIs aur relevant charts dikhte
+  hain. Land-use trends available demo theme shares/state records dikhata hai;
+  historical land-use time series prototype mein nahi hai.
 - Chart tooltip hovered values dikhata hai.
 - Recharts visuals local `src/data/analytics.js` se feed hote hain.
 

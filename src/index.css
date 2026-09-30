@@ -2911,6 +2911,34 @@ kbd {
 .submission-form textarea::placeholder {
   color: #738195;
 }
+.add-research-modal { width: min(720px, 100%); }
+.add-research-form select {
+  width: 100%;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: 10px "DM Sans", sans-serif;
+}
+.add-research-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+.research-added-notice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(64, 214, 194, .22);
+  border-radius: 6px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 10px;
+}
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -5504,6 +5532,18 @@ kbd {
 .analytics-tabs > button.active {
   border-bottom-color: var(--teal);
   color: var(--teal);
+}
+.analytics-view-description {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -3px 0 13px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.analytics-view-description .live-dot {
+  flex: none;
 }
 .analytics-kpis {
   display: grid;

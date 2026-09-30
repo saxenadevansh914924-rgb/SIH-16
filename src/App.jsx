@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import {
   Routes,
   Route,
+  Navigate,
   NavLink,
   useLocation,
   useNavigate,
@@ -89,7 +90,7 @@ import {
   innovationService,
   notificationService,
 } from "./data/services";
-const research = researchService.list();
+let research = researchService.list();
 const datasets = datasetService.list();
 const projects = projectService.list();
 const { activity, states, distribution } = analyticsService.getOverview();
@@ -137,6 +138,15 @@ function App() {
     [drawer, setDrawer] = useState(false),
     [palette, setPalette] = useState(false),
     [globalSearch, setGlobalSearch] = useState(""),
+    [researchItems, setResearchItems] = useState(() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem("bhoomi-research") || "null");
+        research = Array.isArray(saved) ? saved : researchService.list();
+      } catch {
+        research = researchService.list();
+      }
+      return research;
+    }),
     [notifications, setNotifications] = useState(seedNotifications),
     [settings, setSettings] = useState(() => {
       try {
@@ -150,6 +160,15 @@ function App() {
   const location = useLocation(),
     navigate = useNavigate(),
     unread = notifications.filter((n) => n.unread && settings.notifications[n.category] !== false).length;
+  useEffect(() => {
+    research = researchItems;
+    localStorage.setItem("bhoomi-research", JSON.stringify(researchItems));
+  }, [researchItems]);
+  const addResearch = (record) => {
+    const next = [record, ...research];
+    research = next;
+    setResearchItems(next);
+  };
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("bhoomi-theme", theme);
@@ -203,7 +222,7 @@ function App() {
           .filter((x) => x.label.toLowerCase().includes(q))
           .slice(0, 7)
       : [];
-  }, [globalSearch]);
+  }, [globalSearch, researchItems]);
   return (
     <div className="app-shell">
       <aside
@@ -327,7 +346,7 @@ function App() {
         </header>
         <div className="page-wrap">
           <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Navigate to="/app" replace />} />
             <Route
               path="/app"
               element={<Dashboard navigate={navigate} bookmarks={bookmarks} />}
@@ -339,6 +358,8 @@ function App() {
                   navigate={navigate}
                   bookmarks={bookmarks}
                   toggleBookmark={toggleBookmark}
+                  researchItems={researchItems}
+                  addResearch={addResearch}
                 />
               }
             />
@@ -349,6 +370,7 @@ function App() {
                   navigate={navigate}
                   bookmarks={bookmarks}
                   toggleBookmark={toggleBookmark}
+                  researchItems={researchItems}
                 />
               }
             />
@@ -453,211 +475,6 @@ function App() {
   );
 }
 
-function Landing() {
-  const navigate = useNavigate();
-  return (
-    <div className="landing">
-      <div className="landing-nav">
-        <div className="brand-mark">
-          <Globe2 size={20} />
-        </div>
-        <div className="landing-brand">
-          <b>
-            Bhoomi<span>Intel</span>
-          </b>
-          <small>LAND GOVERNANCE INTELLIGENCE</small>
-        </div>
-        <button
-          className="button secondary small"
-          onClick={() => navigate("/app")}
-        >
-          Enter platform <ArrowRight size={15} />
-        </button>
-      </div>
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow">
-            <span className="live-dot" /> NATIONAL RESEARCH & POLICY
-            INTELLIGENCE
-          </div>
-          <h1>
-            Evidence for a more
-            <br />
-            <em>informed</em> relationship
-            <br />
-            with land.
-          </h1>
-          <p>
-            Connecting research, policy, geospatial intelligence and evidence
-            for better land governance.
-          </p>
-          <div className="hero-actions">
-            <button className="button primary" onClick={() => navigate("/app")}>
-              Explore platform <ArrowRight size={16} />
-            </button>
-            <button
-              className="button secondary"
-              onClick={() => navigate("/assistant")}
-            >
-              <BrainCircuit size={16} /> AI Research Assistant
-            </button>
-          </div>
-          <div className="hero-proof">
-            <div className="proof-avatars">
-              <span>R</span>
-              <span>P</span>
-              <span>G</span>
-              <span>+</span>
-            </div>
-            <div>
-              <b>One connected evidence ecosystem</b>
-              <small>Research · Policy · Place</small>
-            </div>
-          </div>
-        </div>
-        <div className="hero-visual">
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
-          <div className="india-graphic">
-            <div className="map-grid" />
-            <div className="india-shape">⌖</div>
-            <span className="map-point p1" />
-            <span className="map-point p2" />
-            <span className="map-point p3" />
-            <div className="map-callout">
-              <span className="live-dot" /> LIVE EVIDENCE NETWORK{" "}
-              <b>42 layers connected</b>
-            </div>
-            <div className="visual-coord">
-              20° 35′ N&nbsp;&nbsp; 78° 57′ E<br />
-              INDIA · DEMO VIEW
-            </div>
-          </div>
-          <div className="floating-stat stat-one">
-            <b>1,248</b>
-            <small>Research papers</small>
-            <span>
-              <ArrowUpRight size={12} /> +12.4%
-            </span>
-          </div>
-          <div className="floating-stat stat-two">
-            <div className="mini-bars">
-              {[34, 51, 43, 67, 55, 78, 68, 92].map((h, i) => (
-                <i style={{ height: h + "%" }} key={i} />
-              ))}
-            </div>
-            <small>Evidence activity</small>
-            <b>Growing steadily</b>
-          </div>
-        </div>
-      </section>
-      <section className="landing-metrics">
-        <div>
-          <b>1,248</b>
-          <span>Research records</span>
-        </div>
-        <div>
-          <b>386</b>
-          <span>Curated datasets</span>
-        </div>
-        <div>
-          <b>74</b>
-          <span>Active projects</span>
-        </div>
-        <div>
-          <b>42</b>
-          <span>GIS layers</span>
-        </div>
-        <small>Illustrative prototype data</small>
-      </section>
-      <section className="landing-features">
-        <div className="section-kicker">A CONNECTED TOOLKIT</div>
-        <div className="landing-section-head">
-          <h2>
-            From fragmented evidence
-            <br />
-            to <em>shared intelligence.</em>
-          </h2>
-          <p>
-            A common workspace for the people researching, shaping and
-            stewarding land policy.
-          </p>
-        </div>
-        <div className="feature-grid">
-          {[
-            [
-              BookOpen,
-              "Research intelligence",
-              "Discover studies, policy reports and field evidence in one searchable repository.",
-              "/research",
-              "teal",
-            ],
-            [
-              Map,
-              "Geospatial intelligence",
-              "Bring research into its place context with layered, interactive map views.",
-              "/gis",
-              "blue",
-            ],
-            [
-              TrendingUp,
-              "Policy analytics",
-              "Explore research activity, land-use trends and policy indicators.",
-              "/analytics",
-              "violet",
-            ],
-            [
-              BrainCircuit,
-              "AI research assistant",
-              "Ask natural-language questions grounded in the demo evidence collection.",
-              "/assistant",
-              "cyan",
-            ],
-            [
-              SlidersHorizontal,
-              "Policy simulation",
-              "Explore illustrative scenario shifts through adjustable local parameters.",
-              "/simulation",
-              "amber",
-            ],
-            [
-              Sparkles,
-              "Innovation hub",
-              "Turn new ideas into collaborative challenges, pilots and research.",
-              "/innovation",
-              "pink",
-            ],
-          ].map(([I, t, d, l, c]) => (
-            <button
-              className="feature-card"
-              onClick={() => navigate(l)}
-              key={t}
-            >
-              <span className={"feature-icon " + c}>
-                <I size={19} />
-              </span>
-              <h3>{t}</h3>
-              <p>{d}</p>
-              <span className="feature-link">
-                Explore <ArrowRight size={14} />
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
-      <div className="landing-bottom">
-        <div>
-          <div className="brand-mark">
-            <Globe2 size={18} />
-          </div>
-          <span>Bhoomi Intelligence · Prototype experience</span>
-        </div>
-        <span>Built for evidence-led land governance</span>
-      </div>
-    </div>
-  );
-}
-
 function PageHead({ eyebrow, title, desc, action, children }) {
   return (
     <div className="page-head">
@@ -680,6 +497,33 @@ function DemoFlag() {
 }
 function Dashboard({ navigate }) {
   const data = activity;
+  const exportOverview = () => {
+    const rows = [
+      ["Section", "Metric", "Value", "Context"],
+      ["Summary", "Total research", "1,248", "+12.4% vs last quarter"],
+      ["Summary", "Total datasets", "386", "+8.2% vs last quarter"],
+      ["Summary", "Active projects", "74", "+6.1% vs last quarter"],
+      ["Summary", "Policy studies", "219", "+4.8% vs last quarter"],
+      ["Summary", "GIS layers", "42", "+3 new this month"],
+      ["Summary", "Innovation challenges", "18", "+5 new this quarter"],
+      ...activity.map((item) => ["Monthly activity", item.month, `Research papers: ${item.papers}`, `Policy studies: ${item.policy}`]),
+      ...states.map((item) => ["State-wise activity", item.name, item.value, "Research records"]),
+      ...distribution.map((item) => ["Dataset distribution", item.name, `${item.value}%`, "Share of datasets"]),
+      ["Policy pulse", "Climate resilient land use", "+24%", "Research momentum"],
+      ["Policy pulse", "Digital land records", "+18%", "Policy attention"],
+      ["Policy pulse", "Community tenure", "Explore", "Evidence gap"],
+      ["Notes", "Data status", "Illustrative prototype data", `Exported ${new Date().toLocaleDateString()}`],
+    ];
+    const csv = rows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bhoomi-overview-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   return (
     <>
       <PageHead
@@ -687,7 +531,7 @@ function Dashboard({ navigate }) {
         title="National overview"
         desc="A connected view of land governance research, data and policy activity across India."
         action={
-          <button className="button secondary small">
+          <button className="button secondary small" onClick={exportOverview}>
             <Download size={15} /> Export overview
           </button>
         }
@@ -1076,13 +920,15 @@ function ResearchRows({ items, onOpen }) {
   );
 }
 
-function ResearchPage({ navigate, bookmarks, toggleBookmark }) {
+function ResearchPage({ navigate, bookmarks, toggleBookmark, researchItems, addResearch }) {
   const [query, setQuery] = useState(""),
     [state, setState] = useState("All states"),
     [type, setType] = useState("All types"),
     [sort, setSort] = useState("Newest first"),
-    [mode, setMode] = useState("Keyword");
-  const filtered = research
+    [mode, setMode] = useState("Keyword"),
+    [showAddResearch, setShowAddResearch] = useState(false),
+    [addedNotice, setAddedNotice] = useState("");
+  const filtered = researchItems
     .filter(
       (r) =>
         `${r.title} ${r.abstract} ${r.topic} ${r.author} ${r.org}`
@@ -1103,14 +949,14 @@ function ResearchPage({ navigate, bookmarks, toggleBookmark }) {
         title="Research repository"
         desc="Discover research, policy reports and case studies across India's land governance landscape."
         action={
-          <button className="button primary small">
+          <button className="button primary small" onClick={() => setShowAddResearch(true)}>
             <Plus size={15} /> Add research
           </button>
         }
       >
         <div className="head-meta">
           <DemoFlag />
-          <span>{research.length} records indexed</span>
+          <span>{researchItems.length} records indexed</span>
         </div>
       </PageHead>
       <div className="repo-toolbar">
@@ -1126,13 +972,13 @@ function ResearchPage({ navigate, bookmarks, toggleBookmark }) {
         <div className="filter-group">
           <select value={state} onChange={(e) => setState(e.target.value)}>
             <option>All states</option>
-            {[...new Set(research.map((r) => r.state))].map((x) => (
+            {[...new Set(researchItems.map((r) => r.state))].map((x) => (
               <option key={x}>{x}</option>
             ))}
           </select>
           <select value={type} onChange={(e) => setType(e.target.value)}>
             <option>All types</option>
-            {[...new Set(research.map((r) => r.type))].map((x) => (
+            {[...new Set(researchItems.map((r) => r.type))].map((x) => (
               <option key={x}>{x}</option>
             ))}
           </select>
@@ -1163,6 +1009,7 @@ function ResearchPage({ navigate, bookmarks, toggleBookmark }) {
           </span>
         )}
       </div>
+      {addedNotice && <div className="research-added-notice"><Check size={14}/>{addedNotice}</div>}
       <div className="repository-layout">
         <section className="repository-results">
           <div className="results-heading">
@@ -1244,7 +1091,7 @@ function ResearchPage({ navigate, bookmarks, toggleBookmark }) {
           )}
           <div className="pagination">
             <span>
-              Showing <b>{filtered.length}</b> of 1,248 records
+              Showing <b>{filtered.length}</b> of {researchItems.length} records
             </span>
             <div>
               <button disabled>
@@ -1332,14 +1179,85 @@ function ResearchPage({ navigate, bookmarks, toggleBookmark }) {
           </div>
         </aside>
       </div>
+      {showAddResearch && (
+        <AddResearchModal
+          onClose={() => setShowAddResearch(false)}
+          onAdd={(record) => {
+            addResearch(record);
+            setShowAddResearch(false);
+            setAddedNotice("Research added to your local repository.");
+            setQuery("");
+            setState("All states");
+            setType("All types");
+          }}
+        />
+      )}
     </>
   );
 }
 
-function ResearchDetail({ navigate, bookmarks, toggleBookmark }) {
+function AddResearchModal({ onClose, onAdd }) {
+  const [form, setForm] = useState({
+    title: "", author: "", org: "", year: String(new Date().getFullYear()),
+    topic: "", state: "", type: "Research Paper", abstract: "",
+  });
+  const update = (key) => (event) => setForm((current) => ({ ...current, [key]: event.target.value }));
+  const submit = (event) => {
+    event.preventDefault();
+    const title = form.title.trim();
+    const id = globalThis.crypto?.randomUUID?.() || `r-${Date.now()}`;
+    onAdd({
+      id,
+      title,
+      author: form.author.trim(),
+      org: form.org.trim(),
+      year: Number(form.year),
+      topic: form.topic.trim(),
+      state: form.state.trim(),
+      type: form.type,
+      abstract: form.abstract.trim(),
+      keywords: form.topic.split(/[ ,]+/).filter(Boolean),
+      pages: 1,
+    });
+  };
+  return (
+    <div className="modal-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <form className="challenge-modal add-research-modal" onSubmit={submit}>
+        <button type="button" className="modal-close icon-button" aria-label="Close" onClick={onClose}><X size={17}/></button>
+        <div className="modal-scroll">
+          <div className="modal-eyebrow"><span className="content-type">REPOSITORY</span><DemoFlag/></div>
+          <h2>Add research</h2>
+          <p className="modal-org">Add a record to this browser's prototype repository.</p>
+          <div className="submission-form add-research-form">
+            <label>RESEARCH TITLE<input required maxLength="140" value={form.title} onChange={update("title")} placeholder="Enter the publication title"/></label>
+            <div className="form-row">
+              <label>AUTHOR / AUTHORS<input required maxLength="100" value={form.author} onChange={update("author")} placeholder="Author names"/></label>
+              <label>ORGANIZATION<input required maxLength="100" value={form.org} onChange={update("org")} placeholder="Research organization"/></label>
+            </div>
+            <div className="form-row">
+              <label>YEAR<input required type="number" min="1900" max="2100" value={form.year} onChange={update("year")}/></label>
+              <label>TYPE<select value={form.type} onChange={update("type")}><option>Research Paper</option><option>Policy Report</option><option>Case Study</option><option>Policy Brief</option><option>Dataset Note</option></select></label>
+            </div>
+            <div className="form-row">
+              <label>TOPIC<input required maxLength="60" value={form.topic} onChange={update("topic")} placeholder="e.g. Land use"/></label>
+              <label>STATE<input required maxLength="60" value={form.state} onChange={update("state")} placeholder="State or national"/></label>
+            </div>
+            <label>ABSTRACT<textarea required rows="4" maxLength="1200" value={form.abstract} onChange={update("abstract")} placeholder="Summarize the research and its findings"/></label>
+            <div className="add-research-actions">
+              <button type="button" className="button secondary" onClick={onClose}>Cancel</button>
+              <button type="submit" className="button primary"><Plus size={15}/> Add to repository</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function ResearchDetail({ navigate, bookmarks, toggleBookmark, researchItems = research }) {
   const { id } = useParams(),
-    r = research.find((x) => x.id === id) || research[0],
-    related = research
+    r = researchItems.find((x) => x.id === id) || researchItems[0],
+    related = researchItems
       .filter(
         (x) => x.id !== r.id && (x.topic === r.topic || x.state === r.state),
       )
@@ -1540,6 +1458,30 @@ function DatasetsPage() {
       d.name.toLowerCase().includes(query.toLowerCase()) &&
       (category === "All categories" || d.category === category),
   );
+  const exportCatalogue = () => {
+    const rows = [
+      ["Dataset", "Category", "State", "Format", "Last updated", "Coverage"],
+      ...items.map((dataset) => [
+        dataset.name,
+        dataset.category,
+        dataset.state,
+        dataset.format,
+        dataset.updated,
+        dataset.records,
+      ]),
+    ];
+    const csv = rows
+      .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","))
+      .join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bhoomi-data-catalogue-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   return (
     <>
       <PageHead
@@ -1547,7 +1489,7 @@ function DatasetsPage() {
         title="Datasets"
         desc="Explore structured and geospatial evidence for land governance research."
         action={
-          <button className="button secondary small">
+          <button className="button secondary small" onClick={exportCatalogue}>
             <Download size={15} /> Data catalogue
           </button>
         }
@@ -2298,6 +2240,69 @@ function AnalyticsPage() {
       "Maharashtra",
       "Rajasthan",
     ]);
+  const indicatorTrends = [
+    { quarter: "Q1", records: 45, planning: 36 },
+    { quarter: "Q2", records: 53, planning: 43 },
+    { quarter: "Q3", records: 62, planning: 49 },
+    { quarter: "Q4", records: 71, planning: 58 },
+  ];
+  const kpisByTab = {
+    Overview: [
+      ["Research publications", "1,248", "+12.4%", "papers indexed"],
+      ["Dataset growth", "386", "+8.2%", "records available"],
+      ["State activity", "7", "Across India", "states in demo"],
+      ["Policy indicators", "24", "+3 this month", "signals tracked"],
+    ],
+    "Research intelligence": [
+      ["Research publications", "1,248", "+12.4%", "papers indexed"],
+      ["Policy studies", "219", "+4.8%", "indexed studies"],
+      ["Research papers", activity.reduce((sum, item) => sum + item.papers, 0), "Jan–Aug", "records in monthly chart"],
+      ["Policy study records", activity.reduce((sum, item) => sum + item.policy, 0), "Jan–Aug", "records in monthly chart"],
+    ],
+    "Policy intelligence": [
+      ["Policy indicators", "24", "+3 this month", "signals tracked"],
+      ["Policy studies", "219", "+4.8%", "indexed studies"],
+      ["Evidence themes", distribution.length, "Across catalogue", "dataset categories"],
+      ["Record access index", indicatorTrends.at(-1).records, "Q4 demo index", "illustrative indicator"],
+    ],
+    "Land-use trends": [
+      ["Land-use evidence share", `${distribution.find((item) => item.name === "Land use")?.value || 0}%`, "of dataset mix", "illustrative catalogue share"],
+      ["Dataset records", "386", "+8.2%", "records available"],
+      ["State activity", "7", "Across India", "states in demo"],
+      ["Leading state", states[0].value, states[0].name, "research records"],
+    ],
+  };
+  const viewDescriptions = {
+    Overview: "A summary of research, policy indicators, evidence themes and state activity.",
+    "Research intelligence": "Monthly publication signals and state-wise research record coverage.",
+    "Policy intelligence": "Policy indicator movement and the themes represented in the evidence catalogue.",
+    "Land-use trends": "Explore land-use evidence share and state-wise research records in the available demo data.",
+  };
+  const exportAnalysis = () => {
+    const rows = [
+      ["Section", "Metric", "Value", "Context"],
+      ["Report", "Active analytics view", tab, "Current tab selection"],
+      ["KPI", "Research publications", "1,248", "+12.4%; papers indexed"],
+      ["KPI", "Dataset growth", "386", "+8.2%; records available"],
+      ["KPI", "State activity", "7", "States in demo"],
+      ["KPI", "Policy indicators", "24", "+3 this month; signals tracked"],
+      ...activity.map((item) => ["Research intelligence", item.month, `Research papers: ${item.papers}`, `Policy studies: ${item.policy}`]),
+      ...distribution.map((item) => ["Evidence themes", item.name, `${item.value}%`, "Dataset mix by topic"]),
+      ...indicatorTrends.map((item) => ["Policy indicator trends", item.quarter, `Record access: ${item.records}`, `Planning alignment: ${item.planning}`]),
+      ...states.filter((item) => compare.includes(item.name)).map((item) => ["State comparison", item.name, item.value, "Research records; selected state"]),
+      ["Notes", "Data status", "Illustrative prototype data", "Not official government statistics"],
+      ["Report", "Exported", new Date().toLocaleDateString(), "Bhoomi Intelligence Policy Analytics"],
+    ];
+    const csv = rows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bhoomi-policy-analysis-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   return (
     <>
       <PageHead
@@ -2305,7 +2310,7 @@ function AnalyticsPage() {
         title="Policy analytics"
         desc="Explore research signals, land-use patterns and policy indicators across states."
         action={
-          <button className="button secondary small">
+          <button className="button secondary small" onClick={exportAnalysis}>
             <Download size={15} /> Export analysis
           </button>
         }
@@ -2331,13 +2336,9 @@ function AnalyticsPage() {
           </button>
         ))}
       </div>
+      <div className="analytics-view-description"><span className="live-dot"/>{viewDescriptions[tab]}</div>
       <div className="analytics-kpis">
-        {[
-          ["Research publications", "1,248", "+12.4%", "papers indexed"],
-          ["Dataset growth", "386", "+8.2%", "records available"],
-          ["State activity", "7", "Across India", "states in demo"],
-          ["Policy indicators", "24", "+3 this month", "signals tracked"],
-        ].map((x, i) => (
+        {kpisByTab[tab].map((x, i) => (
           <div className="panel analytics-kpi" key={x[0]}>
             <span className={"analytics-kpi-icon tone-" + i}>
               {
@@ -2362,6 +2363,7 @@ function AnalyticsPage() {
         ))}
       </div>
       <div className="analytics-grid">
+        {(tab === "Overview" || tab === "Research intelligence") && (
         <section className="panel chart-panel wide">
           <div className="panel-head">
             <div>
@@ -2425,15 +2427,15 @@ function AnalyticsPage() {
             </ResponsiveContainer>
           </div>
         </section>
+        )}
+        {(tab === "Overview" || tab === "Policy intelligence" || tab === "Land-use trends") && (
         <section className="panel chart-panel">
           <div className="panel-head">
             <div>
-              <h2>Evidence themes</h2>
-              <p>Dataset mix by topic</p>
+              <h2>{tab === "Land-use trends" ? "Land-use evidence coverage" : "Evidence themes"}</h2>
+              <p>{tab === "Land-use trends" ? "Share of demo datasets by land-governance theme" : "Dataset mix by topic"}</p>
             </div>
-            <button className="more-button">
-              <MoreHorizontal size={17} />
-            </button>
+            <span className="eyebrow">386 RECORDS</span>
           </div>
           <div className="donut-content analytics-donut">
             <div className="donut">
@@ -2470,6 +2472,8 @@ function AnalyticsPage() {
             </div>
           </div>
         </section>
+        )}
+        {(tab === "Overview" || tab === "Policy intelligence") && (
         <section className="panel chart-panel">
           <div className="panel-head">
             <div>
@@ -2483,12 +2487,7 @@ function AnalyticsPage() {
           <div className="chart-wrap medium">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={[
-                  { q: "Q1", records: 45, planning: 36 },
-                  { q: "Q2", records: 53, planning: 43 },
-                  { q: "Q3", records: 62, planning: 49 },
-                  { q: "Q4", records: 71, planning: 58 },
-                ]}
+                data={indicatorTrends.map(({ quarter: q, ...values }) => ({ q, ...values }))}
                 margin={{ top: 10, right: 8, left: -20, bottom: 0 }}
               >
                 <defs>
@@ -2538,15 +2537,15 @@ function AnalyticsPage() {
             </ResponsiveContainer>
           </div>
         </section>
+        )}
+        {(tab === "Overview" || tab === "Research intelligence" || tab === "Land-use trends") && (
         <section className="panel chart-panel wide">
           <div className="panel-head">
             <div>
-              <h2>State comparison</h2>
-              <p>Research activity and evidence coverage</p>
+              <h2>{tab === "Land-use trends" ? "State-wise research evidence" : "State comparison"}</h2>
+              <p>{tab === "Land-use trends" ? "Available state records provide context for land-use research" : "Research activity and evidence coverage"}</p>
             </div>
-            <button className="select-like">
-              Research activity <ChevronDown size={13} />
-            </button>
+            <span className="eyebrow">{compare.length} STATES SELECTED</span>
           </div>
           <div className="compare-select">
             {states.map((s) => (
@@ -2611,7 +2610,14 @@ function AnalyticsPage() {
             </ResponsiveContainer>
           </div>
         </section>
+        )}
       </div>
+      {tab === "Land-use trends" && (
+        <div className="analytics-disclaimer">
+          <CircleHelp size={15} />
+          <span>This prototype has no historical land-use time series. This view uses dataset theme shares and state research counts as available illustrative evidence.</span>
+        </div>
+      )}
       <div className="analytics-disclaimer">
         <CircleHelp size={15} />
         <span>
